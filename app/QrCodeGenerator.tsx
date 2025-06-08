@@ -12,6 +12,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import { Link, Mail } from 'lucide-react'
 
  
  function QrCodeGenerator() {
@@ -27,9 +28,9 @@ import {
                     <Tabs 
                     defaultValue='link'
                     className='space-y-6'>
-                        <TabsList className='h-10 w-full grid grid-cols-2 bg-[#057fff] text-lg'>
-                             <TabsTrigger className='text-white' value='Link'>Link</TabsTrigger>
-                                <TabsTrigger className='text-white' value='email'>Email</TabsTrigger>
+                        <TabsList className='h-10 w-full grid grid-cols-2 bg-[#057FFF] text-lg'>
+                             <TabsTrigger className='text-white font-bold data-[state=active]:text-black' value='link'><Link /> Link</TabsTrigger>
+                                <TabsTrigger className='text-white font-bold data-[state=active]:text-black' value='email'> <Mail className="w-4 h-4 mr-2" />Email</TabsTrigger>
                         </TabsList>
                     </Tabs>
                   </div>
