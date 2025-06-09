@@ -13,13 +13,15 @@ import {
    TabsList,
    TabsTrigger,
 } from "@/components/ui/tabs"
-import { LayoutGrid, Link, Mail } from 'lucide-react'
+import { Download, LayoutGrid, Link, Mail } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { fileURLToPath } from 'url'
 import { QRCodeSVG } from 'qrcode.react'
-
-
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
+import {saveAs} from 'file-saver'
+import { toPng } from 'html-to-image'
 function QrCodeGenerator() {
 
 
@@ -31,6 +33,40 @@ function QrCodeGenerator() {
    const [qrType, setQrType] = useState("link")
    const [subject, setSubject] = useState("")
    const [message, setMessage] = useState("")
+   const [email, setEmail] = useState("")
+
+   const handleDownload = (type: "png" | "svg") => {
+    const qrCodeElem = document.getElementById("qr-code");
+
+    if (qrCodeElem) {
+      if (type === "png") {
+        toPng(qrCodeElem)
+          .then((dataUrl) => {
+            saveAs(dataUrl, "qr-code.png");
+          })
+          .catch((err) => {
+            console.log("Error generating QR code", err);
+          });
+      } else if (type === "svg") {
+        const svgElem = qrCodeElem.querySelector("svg");
+
+        if (svgElem) {
+          const saveData = new Blob([svgElem.outerHTML], {
+            type: "image/svg+xml;charset=utf-8",
+          });
+          saveAs(saveData, "qr-code.svg");
+        }
+      }
+    }
+  };
+
+
+
+  const handleEmailGeneration = ()=>{
+   const emailLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+   setUrl(emailLink);
+  }
+
 
 
    return (
@@ -54,10 +90,27 @@ function QrCodeGenerator() {
                            <div className='space-y-6'>
                               <div className='space-y-2'>
                                  <Label htmlFor="url" className="font-semibold text-[#057FFF]">URL</Label>
-                                 <Input id="url" type='text' value={url} onChange={(e) => setUrl(e.target.value)} className='w-full bg-whit border-2 border-white/70 rounded-md outline-none focus-visible:ring-0 placeholder:text-gray-400' />
+                                 <Input id="url" type='text' value={url} placeholder='Enter URL' onChange={(e) => setUrl(e.target.value)} className='w-full bg-whit border-2 border-white/70 rounded-md outline-none focus-visible:ring-0 placeholder:text-gray-400' />
                               </div>
                            </div>
                         </TabsContent>
+                        <TabsContent value='email' className='space-y-6'>
+                            <div className='space-y-4'>
+                                 <div className='space-y-2' >
+                                      <Label htmlFor='email' className='font-semibold text-[#037FFF]'>Email</Label>
+                                      <Input type='email' placeholder='Enter Email' id='email' value={email} onChange={(e) => setEmail(e.target.value)} className='w-full bg-white border-2 border-white/70 rounded-md outline-none focus-visible:ring-0 placeholder:text-gray-400' />
+                                 </div>
+                                 <div className='space-y-2'>
+                                       <Label htmlFor='subject' className='font-semibold text-[#037FFF]'>Subject</Label>
+                                       <Input type='text' placeholder='Enter Subject' id='subject' value={subject} onChange={(e) => setSubject(e.target.value)} className='w-full bg-white border-2 border-white/70 rounded-md outline-none focus-visible:ring-0 placeholder:text-gray-400' />
+                                 </div>
+                                 <div className='space-y-2'>
+                                       <Label htmlFor='message' className='font-semibold text-[#037FFF]'>Message</Label>
+                                       <Textarea placeholder='Enter Message' id='message' value={message} onChange={(e) => setMessage(e.target.value)} className='w-full bg-white border-2 border-white/70 rounded-md outline-none focus-visible:ring-0 placeholder:text-gray-400 resize-none' />
+                                 </div>
+                                 <Button onClick={handleEmailGeneration} className='py-7 px-8 bg-[#057FFF] font-bold rounded-full uppercase '>Generate Email QR Code</Button>
+                              </div>   
+                        </TabsContent> 
                      </Tabs>
 
                      <div className='space-y-4'>
@@ -115,7 +168,7 @@ function QrCodeGenerator() {
                      <span>
                         <LayoutGrid className='w-8 absolute top-4 right-4  h-8 text-white mx-auto' />
                      </span>
-                     <div className='flex justify-center' id="qr-code">
+                     <div className='flex justify-center p-8' id="qr-code">
                         <div className='relative'>
                             <QRCodeSVG
                             value={url}
@@ -131,6 +184,17 @@ function QrCodeGenerator() {
                             />
                             {logo && <img src={logo} alt='logo' className='absolute z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-md border-none'/>}
                         </div>
+
+                     </div>
+                     <div className='flex justify-center space-x-4'>
+                        <Button onClick={()=>handleDownload("png")}  variant={'outline'}>
+                               <Download className='w-4 h-4 mr-2' />
+                           Download PNG
+                        </Button>
+                         <Button onClick={()=>handleDownload("svg")}  variant={'outline'}>
+                               <Download className='w-4 h-4 mr-2' />
+                           Download SVG
+                        </Button>
 
                      </div>
                   </div>
